@@ -13,6 +13,11 @@ mongoose
   .then(() => console.log("MongoDB Connected"))
   .catch((err) => console.error("MongoDB Error:", err));
 
+// Default Route (Fix "Cannot GET /" issue)
+app.get("/", (req, res) => {
+  res.send("Workout Tracker API is running...");
+});
+
 // Routes
 app.use("/api/auth", require("./routes/authRoutes"));
 app.use("/api/workouts", require("./routes/workoutRoutes"));
