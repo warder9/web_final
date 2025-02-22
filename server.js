@@ -1,26 +1,29 @@
-require("dotenv").config();
 const express = require("express");
 const mongoose = require("mongoose");
+const path = require("path");
+const cors = require("cors");
+require("dotenv").config();
+
+const workoutRoutes = require("./routes/workoutRoutes");
+const authRoutes = require("./routes/authRoutes");
 
 const app = express();
-
-// Middleware
 app.use(express.json());
+app.use(cors());
 
-// Database Connection
-mongoose
-  .connect(process.env.MONGO_URI)
-  .then(() => console.log("MongoDB Connected"))
-  .catch((err) => console.error("MongoDB Error:", err));
+// Serve static frontend
+app.use(express.static(path.join(__dirname, "public")));
 
-// Default Route (Fix "Cannot GET /" issue)
-app.get("/", (req, res) => {
-  res.send("Workout Tracker API is running...");
+// API Routes
+app.use("/api/workouts", workoutRoutes);
+app.use("/api/auth", authRoutes);
+
+// Serve index.html for any unknown route (so frontend works)
+app.get("*", (req, res) => {
+    res.sendFile(path.join(__dirname, "public", "index.html"));
 });
 
-// Routes
-app.use("/api/auth", require("./routes/authRoutes"));
-app.use("/api/workouts", require("./routes/workoutRoutes"));
-
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+// Connect to MongoDB & Start Server
+mongoose.connect(process.env.MONGO_URI).then(() => {
+    app.listen(10000, () => console.log("Server running on port 10000"));
+});
