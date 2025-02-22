@@ -1,9 +1,28 @@
-const express = require('express');  
-const { addWorkout, getWorkouts } = require('../controllers/workoutController');  
-const { protect } = require('../middleware/authMiddleware');  
-const router = express.Router();  
+const express = require("express");
+const Workout = require("../models/Workout");
+const authMiddleware = require("../middleware/authMiddleware");
+const router = express.Router();
 
-router.post('/', protect, addWorkout);  
-router.get('/', protect, getWorkouts);  
+// Create Workout
+router.post("/", authMiddleware, async (req, res) => {
+  const { name, exercises } = req.body;
+  try {
+    const workout = new Workout({ user: req.user.id, name, exercises });
+    await workout.save();
+    res.status(201).json(workout);
+  } catch (err) {
+    res.status(500).json({ error: "Server error" });
+  }
+});
 
-module.exports = router;  
+// Get Workouts
+router.get("/", authMiddleware, async (req, res) => {
+  try {
+    const workouts = await Workout.find({ user: req.user.id });
+    res.json(workouts);
+  } catch (err) {
+    res.status(500).json({ error: "Server error" });
+  }
+});
+
+module.exports = router;
