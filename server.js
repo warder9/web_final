@@ -9,18 +9,13 @@ app.use(express.json());
 
 // Database Connection
 mongoose
-  .connect(process.env.MONGO_URI, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  })
+  .connect(process.env.MONGO_URI)
   .then(() => console.log("MongoDB Connected"))
-  .catch((err) => console.error("MongoDB connection error:", err));
+  .catch((err) => console.error("MongoDB Error:", err));
 
-// Routes (Example)
-app.get("/", (req, res) => {
-  res.send("Workout Tracker API is running...");
-});
+// Routes
+app.use("/api/auth", require("./routes/authRoutes"));
+app.use("/api/workouts", require("./routes/workoutRoutes"));
 
-// Start Server
-const PORT = process.env.PORT || 10000;
+const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
